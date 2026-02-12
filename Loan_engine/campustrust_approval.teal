@@ -1,0 +1,271 @@
+#pragma version 8
+txn ApplicationID
+int 0
+==
+bnz main_l32
+txn OnCompletion
+int OptIn
+==
+bnz main_l31
+txn OnCompletion
+int CloseOut
+==
+bnz main_l30
+txn OnCompletion
+int NoOp
+==
+bnz main_l9
+txn OnCompletion
+int UpdateApplication
+==
+bnz main_l8
+txn OnCompletion
+int DeleteApplication
+==
+bnz main_l7
+err
+main_l7:
+int 0
+return
+main_l8:
+int 0
+return
+main_l9:
+txna ApplicationArgs 0
+byte "borrow"
+==
+bnz main_l24
+txna ApplicationArgs 0
+byte "repay"
+==
+bnz main_l16
+txna ApplicationArgs 0
+byte "contribute"
+==
+bnz main_l13
+err
+main_l13:
+txna ApplicationArgs 1
+btoi
+int 0
+>
+assert
+byte "pool_balance"
+byte "pool_balance"
+app_global_get
+txna ApplicationArgs 1
+btoi
++
+app_global_put
+txn Sender
+byte "reputation_score"
+app_local_get
+int 5
++
+store 1
+load 1
+int 1000
+>
+bnz main_l15
+main_l14:
+txn Sender
+byte "reputation_score"
+load 1
+app_local_put
+int 1
+return
+main_l15:
+int 1000
+store 1
+b main_l14
+main_l16:
+txn Sender
+byte "has_active_loan"
+app_local_get
+int 1
+==
+assert
+txn Sender
+byte "active_loan_amount"
+app_local_get
+int 0
+>
+assert
+global Round
+txn Sender
+byte "loan_due_round"
+app_local_get
+<=
+bnz main_l23
+txn Sender
+byte "reputation_score"
+app_local_get
+int 15
+>
+bnz main_l22
+int 0
+store 0
+main_l19:
+load 0
+int 1000
+>
+bnz main_l21
+main_l20:
+txn Sender
+byte "reputation_score"
+load 0
+app_local_put
+txn Sender
+byte "has_active_loan"
+int 0
+app_local_put
+txn Sender
+byte "active_loan_amount"
+int 0
+app_local_put
+txn Sender
+byte "loan_due_round"
+int 0
+app_local_put
+byte "pool_balance"
+byte "pool_balance"
+app_global_get
+txn Sender
+byte "active_loan_amount"
+app_local_get
++
+app_global_put
+int 1
+return
+main_l21:
+int 1000
+store 0
+b main_l20
+main_l22:
+txn Sender
+byte "reputation_score"
+app_local_get
+int 15
+-
+store 0
+b main_l19
+main_l23:
+txn Sender
+byte "reputation_score"
+app_local_get
+int 10
++
+store 0
+b main_l19
+main_l24:
+txn Sender
+byte "reputation_score"
+app_local_get
+int 40
+>
+assert
+txn Sender
+byte "has_active_loan"
+app_local_get
+int 0
+==
+assert
+txna ApplicationArgs 1
+btoi
+int 0
+>
+assert
+txna ApplicationArgs 1
+btoi
+txn Sender
+byte "reputation_score"
+app_local_get
+int 40
+<
+bnz main_l29
+txn Sender
+byte "reputation_score"
+app_local_get
+int 69
+<=
+bnz main_l28
+int 1000
+main_l27:
+<=
+assert
+byte "pool_balance"
+app_global_get
+txna ApplicationArgs 1
+btoi
+>=
+assert
+txn Sender
+byte "has_active_loan"
+int 1
+app_local_put
+txn Sender
+byte "active_loan_amount"
+txna ApplicationArgs 1
+btoi
+app_local_put
+txn Sender
+byte "loan_due_round"
+global Round
+int 5000
++
+app_local_put
+byte "pool_balance"
+byte "pool_balance"
+app_global_get
+txna ApplicationArgs 1
+btoi
+-
+app_global_put
+int 1
+return
+main_l28:
+int 500
+b main_l27
+main_l29:
+int 0
+b main_l27
+main_l30:
+txn Sender
+byte "has_active_loan"
+app_local_get
+int 0
+==
+assert
+int 1
+return
+main_l31:
+txn Sender
+byte "reputation_score"
+int 50
+app_local_put
+txn Sender
+byte "has_active_loan"
+int 0
+app_local_put
+txn Sender
+byte "active_loan_amount"
+int 0
+app_local_put
+txn Sender
+byte "loan_due_round"
+int 0
+app_local_put
+int 1
+return
+main_l32:
+byte "pool_balance"
+int 0
+app_global_put
+byte "penalty_rate"
+int 0
+app_global_put
+byte "reward_rate"
+int 0
+app_global_put
+int 1
+return
