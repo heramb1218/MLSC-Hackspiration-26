@@ -34,6 +34,21 @@ app.get('/', (req, res) => {
     res.send('CampusTrust API is running');
 });
 
+// DEBUG ENDPOINT (Remove in production)
+app.get('/debug-config', (req, res) => {
+    res.json({
+        cachedConfig: {
+            mongo_uri_set: !!process.env.MONGO_URI,
+            pool_address_set: !!process.env.POOL_ADDRESS,
+            pool_mnemonic_set: !!process.env.POOL_MNEMONIC,
+            algod_server: process.env.ALGOD_SERVER || 'default-testnet'
+        },
+        dbState: mongoose.connection.readyState, // 0=disconnected, 1=connected, 2=connecting, 3=disconnecting
+        dbHost: mongoose.connection.host,
+        dbName: mongoose.connection.name
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
