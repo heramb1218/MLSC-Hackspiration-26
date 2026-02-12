@@ -1,12 +1,32 @@
 const mongoose = require('mongoose');
 
 const LoanSchema = new mongoose.Schema({
-    userId: String,
-    amount: Number,
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
+    amount: {
+        type: Number,
+        required: true
+    },
+    txId: {
+        type: String,
+        default: ''
+    },
     status: {
         type: String,
-        default: "active"
+        enum: ['active', 'repaid'],
+        default: 'active'
+    },
+    dueRound: {
+        type: Number,
+        default: 0
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 });
 
-module.exports = mongoose.model("Loan", LoanSchema);
+module.exports = mongoose.model('Loan', LoanSchema);
