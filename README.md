@@ -1,104 +1,193 @@
-# CampusTrust - 60% MVP
+# 🏦 CampusTrust
 
-This project contains the Frontend and Backend for the CampusTrust decentralized finance platform.
+### Decentralized Reputation-Linked Microcredit Ecosystem (Hybrid Web2 + Algorand)
 
-## Prerequisites
+------------------------------------------------------------------------
 
-- **Node.js**: You must have Node.js installed. Download it from [nodejs.org](https://nodejs.org/).
-- **MongoDB**: You need a MongoDB connection string. You can use a local instance or MongoDB Atlas. Update `backend/.env` with your connection string.
+## 📌 Overview
 
-## Setup Instructions
+CampusTrust is a hybrid Web2 + Web3 microcredit platform that enables
+students to access small loans based on a reputation-driven eligibility
+model.
 
-### 1. Backend Setup (MacOS)
+The system combines:
 
-1.  **Open Terminal**: Press `Command + Space`, type "Terminal", and press Enter.
+-   **Web2 infrastructure** for user management, database storage, and
+    API processing\
+-   **Algorand Layer-1 smart contracts (ASC1)** for decentralized loan
+    enforcement and reputation updates
 
-2.  **Install Node.js** (if not installed):
-    It is recommended to use Homebrew. If you don't have Homebrew, install Node.js from [nodejs.org](https://nodejs.org/).
-    If you have Homebrew:
-    ```bash
-    brew install node
-    ```
+The goal is to create a transparent, trust-minimized lending ecosystem
+within a campus environment.
 
-3.  **Navigate to the project**:
-    ```bash
-    cd "Documents/Projects/CampusTrust - Blockchain/backend"
-    ```
-    *(Note: Adjust the path if you saved the project elsewhere)*
+------------------------------------------------------------------------
 
-4.  **Install dependencies**:
-    ```bash
-    npm install
-    ```
+## 🎯 Problem Statement
 
-5.  **Start the server**:
-    ```bash
-    npm run dev
-    ```
-    The backend will run on `http://localhost:5001`.
+Traditional student lending systems lack:
 
-### 2. Frontend Setup (MacOS)
+-   Transparent eligibility criteria\
+-   Automated trust enforcement\
+-   Reputation-based microcredit access\
+-   On-chain accountability
 
-1.  **Open a New Terminal Tab**: Press `Command + T` in your terminal window.
+CampusTrust addresses these gaps by combining structured backend logic
+with blockchain-based enforcement.
 
-2.  **Navigate to the frontend folder**:
-    ```bash
-    cd "../frontend"
-    ```
-    *(Or if opening a fresh terminal: `cd "Documents/Projects/CampusTrust - Blockchain/frontend"`)*
+------------------------------------------------------------------------
 
-3.  **Install dependencies**:
-    ```bash
-    npm install
-    ```
+## 🏗 System Architecture
 
-4.  **Start the React app**:
-    ```bash
-    npm run dev
-    ```
-    The frontend will run on `http://localhost:5173` (or similar).
+CampusTrust follows a layered hybrid architecture:
 
-## Features Implemented
+### 1️⃣ Frontend Layer (Vercel)
 
-- **User Auth**: Signup and Login.
-- **Dashboard**: View Reputation, Pool Balance, and Active Loans.
-- **Pool Actions**: Contribute to the pool (increases reputation).
-- **Borrowing**: Borrow from the pool (if balance suffices).
-- **Repayment**: Repay loans to significantly boost reputation.
+-   Built using React / JavaScript
+-   Connects to Backend REST APIs
+-   Connects to Algorand blockchain via JS SDK
+-   Integrates Pera Wallet for transaction signing
 
-## Troubleshooting
+### 2️⃣ Backend Layer (Railway)
 
-### Connecting to Remote MongoDB (Windows Host)
+-   Node.js + Express
+-   Handles user registration & authentication
+-   Loan eligibility validation
+-   Reputation updates
+-   Pool balance management
+-   Communicates with MongoDB Atlas
 
-If your database is on a Windows laptop (Laptop B), follow these steps to allow the Mac (Laptop A) to connect:
+### 3️⃣ Database Layer (MongoDB Atlas)
 
-1.  **Find Windows Laptop IP**:
-    -   Open Command Prompt (`cmd`).
-    -   Type `ipconfig` and press Enter.
-    -   Note the **IPv4 Address** (e.g., `192.168.1.15`).
+Collections:
 
-2.  **Configure MongoDB for Remote Access**:
-    -   Open File Explorer and navigate to `C:\Program Files\MongoDB\Server\7.0\bin\` (or your version).
-    -   Open `mongod.cfg` with Notepad (Run as Administrator).
-    -   Find the `net:` section and change verify `bindIp`:
-        ```yaml
-        net:
-          port: 27017
-          bindIp: 0.0.0.0  # CHANGE THIS from 127.0.0.1 to 0.0.0.0
-        ```
-    -   Save the file.
+**Users** - name - email - password - walletAddress - reputationScore
+(default: 50)
 
-3.  **Restart MongoDB Service**:
-    -   Press `Win + R`, type `services.msc`, and press Enter.
-    -   Find **MongoDB Server**, right-click, and select **Restart**.
+**Loans** - userId - amount - status (active / repaid)
 
-4.  **Update Backend Config (on Mac)**:
-    -   Open `backend/.env`.
-    -   Set `MONGO_URI=mongodb://<WINDOWS_IP_ADDRESS>:27017/campustrust`.
+**Pool** - poolBalance
 
-5.  **Firewall Check**:
-    -   Ensure Windows Firewall allows connections on port 27017. You may need to add an Inbound Rule for TCP port 27017.
+### 4️⃣ Blockchain Layer (Algorand Layer-1)
 
-## Troubleshooting
-- **MongoDB Connection Error**: Check your `MONGO_URI` in `backend/.env`.
-- **API Errors**: Ensure the backend server is running while using the frontend.
+Stateful Smart Contract (ASC1 written in PyTeal)
+
+Local State (per user): - reputation_score - has_active_loan -
+active_loan_amount - loan_due_round
+
+Global State: - pool_balance - penalty_rate - reward_rate
+
+Smart Contract Methods: - borrow() - repay() - contribute()
+
+Uses: - Global.round() for loan deadlines\
+- Atomic transaction groups for fund movements\
+- On-chain validation of credit rules
+
+------------------------------------------------------------------------
+
+## 🔐 Loan & Reputation Logic
+
+### Borrow Rules
+
+-   Reputation \> 40\
+-   No active loan\
+-   Requested amount within limit\
+-   Pool balance sufficient
+
+### Loan Limits
+
+-   Reputation \< 40 → Not eligible\
+-   40--69 → Max 500 units\
+-   ≥ 70 → Max 1000 units
+
+### Repayment Rules
+
+-   On-time repayment → +10 reputation\
+-   Late repayment → −15 reputation\
+-   Loan state cleared after repayment
+
+### Contribution
+
+-   Adds to pool balance\
+-   +5 reputation
+
+------------------------------------------------------------------------
+
+## 🚀 Deployment
+
+### Frontend
+
+-   Hosted on **Vercel**
+
+### Backend
+
+-   Hosted on **Railway**
+
+### Database
+
+-   Hosted on **MongoDB Atlas**
+
+### Blockchain
+
+-   Deployed on **Algorand TestNet**
+
+------------------------------------------------------------------------
+
+## 🔄 End-to-End Flow
+
+1.  User registers and connects wallet\
+2.  Backend validates and stores user data\
+3.  User requests loan\
+4.  Backend validates eligibility\
+5.  Frontend triggers Algorand AppCall\
+6.  Smart contract enforces rules\
+7.  Pool balance and reputation updated\
+8.  Dashboard reflects updated state
+
+------------------------------------------------------------------------
+
+## 🛠 Tech Stack
+
+Frontend: - React - JavaScript - Algorand JS SDK - Pera Wallet
+
+Backend: - Node.js - Express - Mongoose
+
+Database: - MongoDB Atlas
+
+Blockchain: - Algorand Layer-1 - PyTeal (ASC1 Smart Contract)
+
+Deployment: - Vercel - Railway
+
+------------------------------------------------------------------------
+
+## 📈 Future Improvements
+
+-   Fully migrate eligibility logic on-chain\
+-   Add reward token (ASA) incentives\
+-   DAO-style pool governance\
+-   Credit score visualization dashboard\
+-   Production security hardening
+
+------------------------------------------------------------------------
+
+## 🏁 Conclusion
+
+CampusTrust establishes a scalable hybrid infrastructure combining
+traditional backend systems with Algorand-based smart contract
+enforcement.
+
+The Web2 layer ensures usability and structured data persistence, while
+the blockchain layer guarantees transparent, tamper-resistant financial
+logic.
+
+This architecture creates a secure, reputation-driven microcredit
+ecosystem suitable for campus environments.
+
+
+
+
+
+
+
+Here are the screenshots of deployment. 
+Railway - https://mlsc-hackspiration-26-production.up.railway.app/
+Vercel - https://campustrust-chi.vercel.app/
